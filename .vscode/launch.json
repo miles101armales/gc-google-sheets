@@ -1,0 +1,16 @@
+{
+    "configurations": [
+    {
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "name": "nodemon",
+        "request": "launch",
+        "restart": true,
+        "runtimeExecutable": "C:/myLaptop/arman.js.programming/azatvaleev-work/getcourse-sales-id/node_modules/nodemon/bin/nodemon.js",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "node"
+    }
+    ]
+}
