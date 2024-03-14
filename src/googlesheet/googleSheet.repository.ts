@@ -97,6 +97,8 @@ export class GoogleSheetService {
 	public async createTable(client: OAuth2Client): Promise<void> {
 		//создание гугл таблицы
 		console.log(`Создание новой таблицы...`);
+		const csvContent = fs.readFileSync('salesData.csv', 'utf-8');
+		const csvValues = csvContent.split(';');
 		// Создание клиента для доступа к API Google Sheets
 		const sheets = google.sheets({ version: 'v4', auth: client });
 		const currentData = new Date();
@@ -123,13 +125,13 @@ export class GoogleSheetService {
 		// Получаем ID созданной таблицы
 		const spreadsheetId = response.data.spreadsheetId;
 		// Дать доступ к таблице
-		const drive = google.drive({ version: 'v3', auth: await this.client });
+		const drive = google.drive({ version: 'v3', auth: this.client });
 		await drive.permissions.create({
 			fileId: spreadsheetId || undefined,
 			requestBody: {
 				role: 'writer',
 				type: 'user',
-				emailAddress: 'ghaliev@gmail.com',
+				emailAddress: csvValues[3],
 			},
 		});
 		console.log('Доступ к таблице успешно предоставлен.');

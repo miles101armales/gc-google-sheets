@@ -1,4 +1,4 @@
-import { IsString, Length } from 'class-validator';
+import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
 
 export class SaleCreateDto {
 	@IsString({ message: 'Invalid ID' })
@@ -13,4 +13,8 @@ export class SaleCreateDto {
 
 	@IsString({ message: 'Invalid Phone' })
 	phone: string;
+
+	@IsOptional()
+	@IsEmail({}, { message: 'Invalid Email' })
+	email?: string;
 }

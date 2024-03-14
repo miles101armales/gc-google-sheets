@@ -47,6 +47,7 @@ export class SalesController extends BaseController implements IControllerId {
 			firstName: String(req.query.firstName),
 			lastName: String(req.query.lastName),
 			phone: String(req.query.phone),
+			email: String(req.query.email),
 		};
 		//вызываем метод из сервиса для формирования данных и отправления в таблицу
 		this.salesService.googleSheetsGetSalesData(transferObject);
