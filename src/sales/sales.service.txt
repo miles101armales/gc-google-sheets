@@ -1,0 +1,80 @@
+import { inject, injectable } from 'inversify';
+import { GoogleSheetService } from '../googlesheet/googleSheet.repository';
+import { SaleCreateDto } from './dto/sales-create.dto';
+import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+import moment from 'moment';
+import 'reflect-metadata';
+import * as fs from 'fs';
+
+@injectable()
+export class SalesService {
+	constructor() {}
+
+	public async googleSheetsGetSalesData(data: SaleCreateDto): Promise<void> {
+		if (isMainThread) {
+			for (let i = 0; i < 3; i++) {
+				const worker = new Worker(__filename, { workerData: { requestData: data, threadId: i } });
+				console.log(`Worker ${i} started`);
+			}
+		} else {
+			const { requestData, threadId } = workerData;
+			this.handleRequest(requestData, threadId);
+		}
+	}
+
+	public async handleRequest(data: SaleCreateDto, threadId: number): Promise<void> {
+		let timerInterval: NodeJS.Timeout | null = null;
+		let endTime: moment.Moment | null = null;
+		const fileName = `data_${threadId}.csv`;
+		fs.writeFileSync(fileName, 'Timestamp,Value\n'); // Создаем файл и записываем заголовок
+		const duration = moment.duration(6, 'seconds');
+		endTime = moment().add(duration);
+
+		if (timerInterval) {
+			clearInterval(timerInterval);
+		}
+
+		timerInterval = setInterval(() => {
+			if (endTime !== null) {
+				const remainingTime = moment.duration(endTime.diff(moment()));
+				if (remainingTime.asSeconds() <= 0) {
+					if (timerInterval !== null) {
+						clearInterval(timerInterval);
+						console.log(`Write a csv ${__filename} into the google`);
+					}
+				}
+			}
+		}, 1000);
+
+		if (endTime) {
+			const csvData: string[] = [];
+			const fileExists = fs.existsSync(__filename);
+
+			if (!fileExists) {
+				csvData.push('ID;Name;Phone;armansk8er@gmail.com;');
+			} else {
+				csvData.push(`ID;Name;Phone;${data.email};`);
+			}
+
+			// Записываем данные в CSV
+			for (const entry of [data]) {
+				csvData.push(
+					`${'https://azatvaleev.getcourse.ru/sales/control/deal/update/id/' + entry.id};${entry.firstName};${entry.phone}`,
+				);
+			}
+
+			// Добавляем новые строки в файл без перезаписи
+			try {
+				this.writeToCSV(__filename, csvData);
+				console.log(`Данные успешно добавлены в файл sales.csv`);
+			} catch (error) {
+				console.error('Ошибка при добавлении данных в файл:', error);
+			}
+		}
+	}
+
+	public async writeToCSV(fileName: string, data: string[]): Promise<void> {
+		const csvContent = data.join(',') + '\n';
+		fs.appendFileSync(fileName, csvContent);
+	}
+}

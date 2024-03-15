@@ -10,6 +10,7 @@ import { SalesService } from './sales.service';
 import { ValidateMiddleware } from '../common/validate.middleware';
 import { IControllerId } from '../sales/sales.controller.interface';
 import 'reflect-metadata';
+import { HTTPError } from '../errors/http-error.class';
 
 @injectable()
 export class SalesController extends BaseController implements IControllerId {
@@ -34,6 +35,11 @@ export class SalesController extends BaseController implements IControllerId {
 				func: this.apiRecieveGoogleSheet,
 				middlewares: [new ValidateMiddleware(SaleCreateDto)],
 			},
+			{
+				path: '/multi-test',
+				method: 'get',
+				func: this.multiTest,
+			},
 		]);
 	}
 
@@ -52,5 +58,21 @@ export class SalesController extends BaseController implements IControllerId {
 		//вызываем метод из сервиса для формирования данных и отправления в таблицу
 		this.salesService.googleSheetsGetSalesData(transferObject);
 		this.ok(res, `Your Data Accept into GoogleSheet with ID: ${transferObject.id}`);
+	}
+
+	async multiTest(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			const csvId: SaleCreateDto = {
+				id: String(req.query.id),
+				firstName: String(req.query.firstName),
+				lastName: String(req.query.lastName),
+				phone: String(req.query.phone),
+				email: String(req.query.email),
+			};
+			console.log(csvId.email);
+			res.status(200).send('Data written to CSV');
+		} catch (error) {
+			next(new HTTPError(500, 'Internal Server Error'));
+		}
 	}
 }
