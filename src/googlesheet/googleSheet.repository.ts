@@ -131,7 +131,7 @@ export class GoogleSheetService {
 			requestBody: {
 				role: 'writer',
 				type: 'user',
-				emailAddress: csvValues[3],
+				emailAddress: 'sadrievilmir88@gmail.com',
 			},
 		});
 		console.log('Доступ к таблице успешно предоставлен.');

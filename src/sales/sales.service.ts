@@ -14,7 +14,7 @@ export class SalesService {
 	constructor(@inject(TYPES.GoogleSheetService) private googleSheetService: GoogleSheetService) {}
 
 	public async googleSheetsGetSalesData(data: SaleCreateDto): Promise<moment.Moment> {
-		const duration = moment.duration(6, 'seconds');
+		const duration = moment.duration(600, 'seconds');
 		// Установка времени окончания таймера на текущее время плюс указанную длительность
 		this.endTime = moment().add(duration);
 		// Если уже существует интервал таймера, он очищается
